@@ -1,0 +1,16 @@
+{
+  "name": "uptime_monitoring_app",
+  "version": "1.0.0",
+  "description": "an uptime monitoring app",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx nodemon server.js"
+  },
+  "author": "micheal",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "nodemon": "^2.0.16"
+  }
+}
