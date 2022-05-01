@@ -3,14 +3,14 @@ require('dotenv').config();
 const http = require('http');
 
 const url = require('url');
-const stringDecoder = require('string_decoder').StringDecoder();
+const stringDecoder = require('string_decoder').StringDecoder;
 
 //creating the server
 const server = http.createServer(function (req, res) {
    //parsing the url
    const parsedUrl = url.parse(req.url, true);
 
-   // geting the path
+   // getting the path
    const path = parsedUrl.pathname;
 
    // disabling strict routing
@@ -32,19 +32,27 @@ const server = http.createServer(function (req, res) {
       buffer += decoder.write(data);
    });
    req.on('end', () => {
-      res.end('my name is Micheal Opeyemi Awoniran\n');
-      const workindHandler =
-         typeof router[trimmedPath] != undefined
+      var chosenHandler =
+         typeof router[trimmedPath] !== 'undefined'
             ? router[trimmedPath]
             : handlers.notFound;
+      const data = {
+         trimmedPath,
+         queryStringObject,
+         method,
+         headers,
+         payload: buffer,
+      };
+      chosenHandler(data, function (statusCode, payload) {
+         statusCode = typeof statusCode === 'number' ? statusCode : 200;
+         payload = typeof payload === 'object' ? payload : {};
+         let payloadString = JSON.stringify(payload);
+         res.setHeader('content-type', 'application/json');
+         console.log(payloadString);
+         res.writeHead(statusCode);
+         res.end(payloadString);
+      });
    });
-   const data = {
-      trimmedPath,
-      queryStringObject,
-      method,
-      headers,
-      payload,
-   };
 });
 const port = process.env.PORT || 5000;
 

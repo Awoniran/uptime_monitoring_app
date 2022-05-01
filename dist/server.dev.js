@@ -9,12 +9,12 @@ var http = require('http');
 
 var url = require('url');
 
-var stringDecoder = require('string_decoder').StringDecoder(); //creating the server
+var stringDecoder = require('string_decoder').StringDecoder; //creating the server
 
 
 var server = http.createServer(function (req, res) {
   //parsing the url
-  var parsedUrl = url.parse(req.url, true); // geting the path
+  var parsedUrl = url.parse(req.url, true); // getting the path
 
   var path = parsedUrl.pathname; // disabling strict routing
 
@@ -32,16 +32,24 @@ var server = http.createServer(function (req, res) {
     buffer += decoder.write(data);
   });
   req.on('end', function () {
-    res.end('my name is Micheal Opeyemi Awoniran\n');
-    var workindHandler = _typeof(router[trimmedPath]) != undefined ? router[trimmedPath] : handlers.notFound;
+    var chosenHandler = typeof router[trimmedPath] !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+    var data = {
+      trimmedPath: trimmedPath,
+      queryStringObject: queryStringObject,
+      method: method,
+      headers: headers,
+      payload: buffer
+    };
+    chosenHandler(data, function (statusCode, payload) {
+      statusCode = typeof statusCode === 'number' ? statusCode : 200;
+      payload = _typeof(payload) === 'object' ? payload : {};
+      var payloadString = JSON.stringify(payload);
+      res.setHeader('content-type', 'application/json');
+      console.log(payloadString);
+      res.writeHead(statusCode);
+      res.end(payloadString);
+    });
   });
-  var data = {
-    trimmedPath: trimmedPath,
-    queryStringObject: queryStringObject,
-    method: method,
-    headers: headers,
-    payload: payload
-  };
 });
 var port = process.env.PORT || 5000;
 server.listen(port, function (req, res) {
