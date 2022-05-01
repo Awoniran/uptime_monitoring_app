@@ -1,11 +1,15 @@
 "use strict";
 
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 // This is the main file of this api
 require('dotenv').config();
 
 var http = require('http');
 
-var url = require('url'); //creating the server
+var url = require('url');
+
+var stringDecoder = require('string_decoder').StringDecoder(); //creating the server
 
 
 var server = http.createServer(function (req, res) {
@@ -20,11 +24,43 @@ var server = http.createServer(function (req, res) {
 
   var queryStringObject = parsedUrl.query; // the req headers
 
-  var headers = req.headers;
-  res.end('my name is Micheal Opeyemi Awoniran\n');
-  console.log(method, trimmedPath, queryStringObject, headers);
+  var headers = req.headers; //get payload if any
+
+  var decoder = new stringDecoder('utf-8');
+  var buffer = '';
+  req.on('data', function (data) {
+    buffer += decoder.write(data);
+  });
+  req.on('end', function () {
+    res.end('my name is Micheal Opeyemi Awoniran\n');
+    var workindHandler = _typeof(router[trimmedPath]) != undefined ? router[trimmedPath] : handlers.notFound;
+  });
+  var data = {
+    trimmedPath: trimmedPath,
+    queryStringObject: queryStringObject,
+    method: method,
+    headers: headers,
+    payload: payload
+  };
 });
 var port = process.env.PORT || 5000;
 server.listen(port, function (req, res) {
   console.log("server listening on port ".concat(port));
-});
+}); //event handlers
+
+var handlers = {};
+
+handlers.sample = function (data, callback) {
+  callback(406, {
+    name: 'sample handler'
+  });
+};
+
+handlers.notFound = function (data, callback) {
+  callback(404);
+}; //router object
+
+
+var router = {
+  sample: handlers.sample
+};
