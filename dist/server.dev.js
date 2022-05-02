@@ -9,23 +9,24 @@ var http = require('http');
 
 var url = require('url');
 
-var stringDecoder = require('string_decoder').StringDecoder; //creating the server
+var stringDecoder = require('string_decoder').StringDecoder;
 
+var data = require('./lib/data'); // console.log(data);
+
+
+data.create('test', 'newFile', {
+  foo: 'bar'
+}, function (err) {
+  return [console.log(err)];
+}); //creating the server
 
 var server = http.createServer(function (req, res) {
-  //parsing the url
-  var parsedUrl = url.parse(req.url, true); // getting the path
-
-  var path = parsedUrl.pathname; // disabling strict routing
-
-  var trimmedPath = path.replace(/^\/+|\/+$/g, ''); // the method on the  request
-
-  var method = req.method.toLowerCase(); // the query object
-
-  var queryStringObject = parsedUrl.query; // the req headers
-
-  var headers = req.headers; //get payload if any
-
+  var parsedUrl = url.parse(req.url, true);
+  var path = parsedUrl.pathname;
+  var trimmedPath = path.replace(/^\/+|\/+$/g, '');
+  var method = req.method.toLowerCase();
+  var queryStringObject = parsedUrl.query;
+  var headers = req.headers;
   var decoder = new stringDecoder('utf-8');
   var buffer = '';
   req.on('data', function (data) {
@@ -58,10 +59,8 @@ server.listen(port, function (req, res) {
 
 var handlers = {};
 
-handlers.sample = function (data, callback) {
-  callback(406, {
-    name: 'sample handler'
-  });
+handlers.ping = function (data, callback) {
+  callback(200);
 };
 
 handlers.notFound = function (data, callback) {
@@ -70,5 +69,5 @@ handlers.notFound = function (data, callback) {
 
 
 var router = {
-  sample: handlers.sample
+  ping: handlers.ping
 };
